@@ -25,13 +25,14 @@ const sequelize = new Sequelize({
     } catch (error) {
         console.error('Unable to connect to the database:', error);
     }
+
     class User extends Model {} //Aca definimos que propiedades va a tener la BD
     User.init({
       username: DataTypes.STRING,
       birthday: DataTypes.DATE
     }, { sequelize, modelName: 'user' });
 
-    await sequelize.sync()//Esto le dice a la BD q definimos un modelo y lo queremos inicializar(Crearlo en la BD)
+    await sequelize.sync()//Esto le dice a la BD q definimos un modelo y lo queremos inicializar(Crearlo en la BD) 
     const jane = await User.create({//De la clase user creamos un nuevo User q tendra nombre y fecha de nacimiento
     username: 'janedoe',
     birthday: new Date(1980, 6, 20)
