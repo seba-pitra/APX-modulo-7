@@ -1,41 +1,55 @@
-import { Sequelize, Model, DataTypes } from "sequelize"
+import {sequelize} from "./db"
+import { Car } from "./db/car"
+import * as express from "express";
 
-//Conectarse a la BD:
-const sequelize = new Sequelize({
-    dialect: "postgres",
-    username: "lpbbcdvvslxbpe",
-    password: "8abab8341f5cfee7f66d038c49e4eded36954190a9be1061b26cee3374d5d9ed",
-    database: "d11vodj82etc3l",
-    port: 5432,
-    host: "ec2-52-207-15-147.compute-1.amazonaws.com",
-    ssl: true,
-    // esto es necesario para que corra correctamente
-    dialectOptions: {
-      ssl: {
-        require: true,
-        rejectUnauthorized: false,
-      },
-    },
-  });
+const port = 3000;
+const app = express()
 
-(async () => {
-    try {
-        await sequelize.authenticate();
-        console.log('Connection has been established successfully.');
-    } catch (error) {
-        console.error('Unable to connect to the database:', error);
-    }
+app.use(express.json()) 
 
-    class User extends Model {} //Aca definimos que propiedades va a tener la BD
-    User.init({
-      username: DataTypes.STRING,
-      birthday: DataTypes.DATE
-    }, { sequelize, modelName: 'user' });
+app.post("/cars",async (req:any,res:any) => {
+    await sequelize.sync()
+    //Ahora existirá un nuevo auto en la DB:
+    const newCar = await Car.create(req.body)
+    res.json(newCar)
+})
 
-    await sequelize.sync()//Esto le dice a la BD q definimos un modelo y lo queremos inicializar(Crearlo en la BD) 
-    const jane = await User.create({//De la clase user creamos un nuevo User q tendra nombre y fecha de nacimiento
-    username: 'janedoe',
-    birthday: new Date(1980, 6, 20)
-    });
-    console.log(jane.toJSON());
-})()
+app.get("/cars", async (req,res) => {
+    await sequelize.sync()
+    const allCars = await Car.findAll()
+    res.json(allCars)
+})
+
+app.get("/cars/:carId", async (req,res) => {
+    await sequelize.sync()
+    const {carId} = req.params;
+    const myCar = await Car.findAll({
+        where: { id: carId }
+    })
+    res.json(myCar)
+})
+
+app.patch("/cars/:carId",async (req,res) => {
+    await sequelize.sync();
+    const {carId} = req.params
+    await Car.update(req.body, {
+        where: { id: carId }
+    })
+    const myCar = await Car.findAll({
+        where: { id: carId }
+    })
+    res.json(myCar)
+})
+
+app.delete("/cars/:carId",async (req,res) => {
+    await sequelize.sync();
+    const { carId } = req.params
+    await Car.destroy({
+        where: { id: carId }
+    })
+    res.json({message: "deleted"})
+})
+
+app.listen(port, () => {
+    console.log("El puerto funciona en el numero:" + port);
+})
