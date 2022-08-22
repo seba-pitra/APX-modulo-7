@@ -17,7 +17,7 @@ function getSHA256ofString(text: string){// esta funcion "hashea" la contraseña
 
 //Aca sincronzamos la BD. Asi q ya existe la tabla "auth"
 sequelize.sync({ alter:true }) //Con esto se borraron tdas las tablas y se volvieron a crear
-.then(res => console.log(res))
+            .then(res => console.log(res))
 
 const port = process.env.PORT || 3000;
 const app = express()
@@ -35,6 +35,7 @@ app.post("/auth",async (req, res) => {
                                   //creara en el modelo user una tabla nueva con los avlores q le paso en el "default"                               
         defaults: {
             email,
+            password,
             name,
             birthdate,
         }
@@ -50,7 +51,7 @@ app.post("/auth",async (req, res) => {
     })
     // console.log({auth, user});
     
-    res.json(auth)
+    res.json({auth, user,})
 })
 
 
@@ -58,14 +59,14 @@ app.post("/auth",async (req, res) => {
 //este endpoint tiene el fin de chequear si existe o no el usuario Y retornar un token q esconda la informacion de user para ser usado de nuevo
 app.post("/auth/token", async(req,res) => {
     const {email, password} = req.body;
-    const passwordHasheado = getSHA256ofString(password)//como la contraseña esta guardada "hasheada" debo bsucarla de forma "hasheada"también
+    const passwordHasheado = getSHA256ofString(password)//como la contraseña esta guardada "hasheada" debo buscarla de forma "hasheada"también
 
     const auth = await Auth.findOne({ where: {
         email,
         password: passwordHasheado
     } })
 
-    const token = jwt.sign({ id: auth.get("user_id") }, SECRET)//el token que tiene esto esconde el "user_id" por ej,
+    const token = jwt.sign({ id: auth.get("user_id") }, SECRET)//el token que tiene esto esconde el "user_id" en este ej,
                                                                //y este es el texto q vamos a usar desp para invocar en otros endpoints 
                                                                //y lo desencriptaremos usaremos el mismo "SECRET"
 
@@ -79,16 +80,27 @@ app.post("/auth/token", async(req,res) => {
 })
 
 
-//aca quequearemos si el token q recibo es el original
-app.post("/me", (req,res) => {
+function authMiddleware(req,res, next) {//los middleware son funciones que se conectan con la funcion q sigue, en este caso
+                                        //"authmiddleware" estara enganchada al endpoint "Get"
     const token = req.headers.authorization.split(" ")[1]//una vez obtenido el token hay q desencriptarlo
+    // const token = req.get("authorization").split(" ")[1]//es lo mismo que la linea de arriba 
 
     try{//esta es la estructra para capturar errores. Si hay un error va al "catch"
         const data = jwt.verify(token, SECRET)//el metodo "verify" desencripta el token pero neecsita la palabra secreta
-        res.json(data)
+        req.body._user = data;//le adjuntamos al req que va a recibir el endpoint la data.
+        next()
     } catch(e) {
         res.status(401).json({ error:true })
     }
+}
+
+//aca quequearemos si el token q recibo es el original
+app.get("/me", authMiddleware, async (req,res) => {
+    // console.log(req.body._user);
+    const user = await User.findByPk(req.body._user.id)
+    
+    res.json({user,})
+    //entonces se uso un middleware para acceder a la data mediante el token y anidar la funcion al objeto
 })
 
 
