@@ -1,54 +1,32 @@
 import * as express from "express";
 import {sequelize} from "./db"
-import { User } from "./db/users";
-import { Product } from "./db/product";
+import { User } from "./db/models";
+import { Product } from "./db/models";
 
 const port = 3000;
 const app = express()
-sequelize.sync({ force: true })
+// sequelize.sync({ alter: true })
 
 app.use(express.json()) 
 
-// app.post("/cars",async (req:any,res:any) => {
-//     const newCar = await Car.create(req.body)
-//     res.json(newCar)
-// })
-
-// app.get("/cars", async (req,res) => {
-//     await sequelize.sync()
-//     const allCars = await Car.findAll()
-//     res.json(allCars)
-// })
-
-// app.get("/cars/:carId", async (req,res) => {
-//     await sequelize.sync()
-//     const {carId} = req.params;
-//     const myCar = await Car.findAll({
-//         where: { id: carId }
-//     })
-//     res.json(myCar)
-// })
-
-// app.patch("/cars/:carId",async (req,res) => {
-//     await sequelize.sync();
-//     const {carId} = req.params
-//     await Car.update(req.body, {
-//         where: { id: carId }
-//     })
-//     const myCar = await Car.findAll({
-//         where: { id: carId }
-//     })
-//     res.json(myCar)
-// })
-
-// app.delete("/cars/:carId",async (req,res) => {
-//     await sequelize.sync();
-//     const { carId } = req.params
-//     await Car.destroy({
-//         where: { id: carId }
-//     })
-//     res.json({message: "deleted"})
-// })
+app.get("/test",async (req:any,res:any) => {
+    // const user = await User.create({
+    //     name: "sebi",
+    //     email: "seba@gmail.com"
+    // })
+    // const product = await Product.create({
+    //     name:"Mate", 
+    //     price: 350,
+    //     UserId: 1
+    // })
+    const products = await Product.findAll({
+        where: {
+            UserId: 1
+        },
+        include: [User]//incluye el modelo User en la busqueda
+    })
+    res.json(products)
+})
 
 app.listen(port, () => {
     console.log("El puerto funciona en el numero:" + port);

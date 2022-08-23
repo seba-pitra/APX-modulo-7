@@ -5,5 +5,5 @@ export class Product extends Model {}
 
 Product.init({
     name: DataTypes.STRING,
-    Price: DataTypes.INTEGER,
+    price: DataTypes.INTEGER,
 }, { sequelize, modelName: 'Product' });
