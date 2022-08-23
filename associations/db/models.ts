@@ -4,8 +4,9 @@
 
 import { User } from "./users";
 import { Product } from "./product";
+import { Auth } from "./auth"
 
 User.hasMany(Product)//definimos la relacion one to many entre User y Product
 Product.belongsTo(User)//aca definimos la relacion entre productos y usuarios
 
-export { User, Product } 
+export { User, Product, Auth } 

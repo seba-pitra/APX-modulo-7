@@ -16,7 +16,7 @@ function getSHA256ofString(text: string){// esta funcion "hashea" la contraseña
 }
 
 //Aca sincronzamos la BD. Asi q ya existe la tabla "auth"
-sequelize.sync({ alter:true }) //Con esto se borraron tdas las tablas y se volvieron a crear
+sequelize.sync({ alter:true }) //Con "force" se borraron tdas las tablas y se volvieron a crear
             .then(res => console.log(res))
 
 const port = process.env.PORT || 3000;
