@@ -35,16 +35,16 @@ function initSearchForm(callback) {
     const marker = new mapboxgl.Marker()
       .setLngLat(firstResult.geometry.coordinates)
       .addTo(map);
-    const [lng,lat] = firstResult.geometry.coordinates
-
-    fetch("/comercios-cerca-de?lat="+lat+"&lng="+lng)
-    .then(res => res.json())
-    .then(results => {
-      for (const comercio of results) {
+      
+      const [lng,lat] = firstResult.geometry.coordinates
+      fetch("/comercios-cerca-de?lat="+lat+"&lng="+lng)
+      .then(res => res.json())
+      .then(results => {
+        for (const comercio of results) {
         const {lat,lng} = comercio._geoloc
         new mapboxgl.Marker()
-      .setLngLat([ lng,lat ])
-      .addTo(map);
+        .setLngLat([ lng,lat ])
+        .addTo(map);
       }
     })
 

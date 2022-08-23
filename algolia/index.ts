@@ -78,7 +78,7 @@ app.get("/comercios-cerca-de",  async (req,res) => {
     res.json(hits)
 })
 
-app.get("*", express.static(__dirname + "/public"))
+app.get("*", express.static(__dirname + "/public"))//pra que en el local host 300 se pueda ver el index html y js
 
 app.listen(port, ()=> {
     console.log("todo ok en el port:", port);
